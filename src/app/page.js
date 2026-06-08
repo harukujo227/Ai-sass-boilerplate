@@ -92,6 +92,20 @@ export default function PlatformDashboard() {
         } else if (typeof val === "string") {
           if (val.includes("\n")) {
             type = "textarea";
+          } else if (val.startsWith("http://") || val.startsWith("https://")) {
+            const lower = val.toLowerCase();
+            if (
+              lower.endsWith(".jpg") ||
+              lower.endsWith(".jpeg") ||
+              lower.endsWith(".png") ||
+              lower.endsWith(".webp") ||
+              lower.endsWith(".gif")
+            ) {
+              type = "image_list";
+              defaultValue = [val];
+            } else {
+              type = "text";
+            }
           } else if (["Auto", "1k", "2k", "4k", "jpg", "png", "webp"].includes(val) || val.includes(",")) {
             type = "enum";
             options = [val];

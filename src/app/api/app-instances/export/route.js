@@ -306,6 +306,17 @@ export default function StandaloneWorkspace() {
     const githubToken = process.env.GITHUB_TOKEN;
     const vercelToken = process.env.VERCEL_TOKEN;
 
+    if (!githubToken || !vercelToken) {
+      if (process.env.VERCEL === "1") {
+        return NextResponse.json(
+          {
+            error: "Cloud export is not configured. Please ensure both GITHUB_TOKEN and VERCEL_TOKEN are set in your Vercel Project Environment Variables.",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     if (githubToken && vercelToken) {
       // ═══════════════════════════════════════════════════════════════════════
       // CLOUD EXPORT: GitHub Git Trees API (single atomic commit) + Vercel

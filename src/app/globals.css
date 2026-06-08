@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), sans-serif;
+  --font-outfit: var(--font-inter), sans-serif;
+  
+  --color-bg-page: #09090b;
+  --color-bg-card: #18181b;
+  --color-bg-card-hover: #27272a;
+  --color-bg-elevated: #202024;
+  --color-divider: #3f3f46;
+  --color-primary: #8b5cf6;
+  --color-primary-hover: #7c3aed;
+  --color-primary-text: #f4f4f5;
+  --color-secondary-text: #a1a1aa;
+}
+
+@layer base {
+  html, body {
+    background-color: var(--color-bg-page);
+    color: var(--color-primary-text);
+    font-family: var(--font-sans);
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: rgba(24, 24, 27, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(63, 63, 70, 0.5);
+}
+
+.glass-dropdown {
+  background: rgba(15, 15, 18, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(63, 63, 70, 0.6);
+}
+
+/* Premium Scrollbars */
+.scrollbar-subtle::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-subtle::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-subtle::-webkit-scrollbar-thumb {
+  background: var(--color-divider);
+  border-radius: 10px;
+}
+
+.scrollbar-subtle::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes gradientX {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-x {
+  animation: gradientX 6s ease infinite;
+}

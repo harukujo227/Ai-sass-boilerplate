@@ -81,31 +81,39 @@ export default function PlatformDashboard() {
         let type = "text";
         let options = [];
         let defaultValue = val;
-        
-        if (typeof val === "boolean") {
+        let maxInputs = 1;
+
+        const kLower = key.toLowerCase();
+        const isListKey = kLower.includes("list") || Array.isArray(val);
+
+        const isImgUrl = (s) => typeof s === "string" && s.startsWith("http") && /\.(jpg|jpeg|png|webp|gif)/i.test(s);
+        const isVidUrl = (s) => typeof s === "string" && s.startsWith("http") && /\.(mp4|webm|mov|mkv)/i.test(s);
+        const isAudUrl = (s) => typeof s === "string" && s.startsWith("http") && /\.(mp3|wav|m4a|ogg)/i.test(s);
+
+        const valArray = Array.isArray(val) ? val : [val];
+        const hasImgVal = valArray.some(isImgUrl);
+        const hasVidVal = valArray.some(isVidUrl);
+        const hasAudVal = valArray.some(isAudUrl);
+
+        if (kLower.includes("image") || kLower.includes("img") || hasImgVal) {
+          type = "image_list";
+          maxInputs = isListKey ? 5 : 1;
+          defaultValue = Array.isArray(val) ? val : (val ? [val] : []);
+        } else if (kLower.includes("video") || hasVidVal) {
+          type = "video_list";
+          maxInputs = isListKey ? 5 : 1;
+          defaultValue = Array.isArray(val) ? val : (val ? [val] : []);
+        } else if (kLower.includes("audio") || hasAudVal) {
+          type = "audio_list";
+          maxInputs = isListKey ? 5 : 1;
+          defaultValue = Array.isArray(val) ? val : (val ? [val] : []);
+        } else if (typeof val === "boolean") {
           type = "boolean";
         } else if (typeof val === "number") {
           type = "number";
-        } else if (Array.isArray(val)) {
-          type = "image_list";
-          defaultValue = [];
         } else if (typeof val === "string") {
           if (val.includes("\n")) {
             type = "textarea";
-          } else if (val.startsWith("http://") || val.startsWith("https://")) {
-            const lower = val.toLowerCase();
-            if (
-              lower.endsWith(".jpg") ||
-              lower.endsWith(".jpeg") ||
-              lower.endsWith(".png") ||
-              lower.endsWith(".webp") ||
-              lower.endsWith(".gif")
-            ) {
-              type = "image_list";
-              defaultValue = [val];
-            } else {
-              type = "text";
-            }
           } else if (["Auto", "1k", "2k", "4k", "jpg", "png", "webp"].includes(val) || val.includes(",")) {
             type = "enum";
             options = [val];
@@ -113,11 +121,11 @@ export default function PlatformDashboard() {
             type = "text";
           }
         }
-        
+
         const label = key
           .replace(/_/g, " ")
           .replace(/\b\w/g, c => c.toUpperCase());
-          
+
         return {
           key,
           label,
@@ -127,7 +135,8 @@ export default function PlatformDashboard() {
           optionsText: options.join(", "),
           min: 0,
           max: 100,
-          step: 1
+          step: 1,
+          maxInputs
         };
       });
       
@@ -607,7 +616,10 @@ export default function PlatformDashboard() {
                                   updated[index].type = val;
                                   if (val === "boolean") updated[index].defaultValue = false;
                                   else if (val === "number" || val === "slider") updated[index].defaultValue = 0;
-                                  else if (val === "image_list") updated[index].defaultValue = [];
+                                  else if (["image_list", "video_list", "audio_list"].includes(val)) {
+                                    updated[index].defaultValue = [];
+                                    updated[index].maxInputs = updated[index].maxInputs || (updated[index].key.toLowerCase().includes("list") ? 5 : 1);
+                                  }
                                   else updated[index].defaultValue = "";
 
                                   if (val === "enum") {
@@ -623,7 +635,9 @@ export default function PlatformDashboard() {
                                   { label: "Toggle Switch", value: "boolean" },
                                   { label: "Dropdown List", value: "enum" },
                                   { label: "Range Slider", value: "slider" },
-                                  { label: "Image Upload", value: "image_list" }
+                                  { label: "Image Upload", value: "image_list" },
+                                  { label: "Video Upload", value: "video_list" },
+                                  { label: "Audio Upload", value: "audio_list" }
                                 ]}
                                 className="w-full font-semibold"
                               />
@@ -659,6 +673,26 @@ export default function PlatformDashboard() {
                               )}
                             </div>
                           </div>
+
+                          {["image_list", "video_list", "audio_list"].includes(param.type) && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fade-in">
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-bold text-secondary-text uppercase tracking-wider block">Max Uploads Limit (Inputs Count)</label>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max="50"
+                                  value={param.maxInputs !== undefined ? param.maxInputs : 1}
+                                  onChange={(e) => {
+                                    const updated = [...userParams];
+                                    updated[index].maxInputs = Math.max(1, Math.min(50, Number(e.target.value) || 1));
+                                    setUserParams(updated);
+                                  }}
+                                  className="w-full bg-bg-page border border-divider/60 rounded py-2 px-3 text-xs outline-none focus:border-primary/60 transition-all font-semibold text-primary-text min-h-[38px]"
+                                />
+                              </div>
+                            </div>
+                          )}
 
                           {param.type === "enum" && (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fade-in">

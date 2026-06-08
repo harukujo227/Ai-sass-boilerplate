@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FaVideo, FaMagic, FaDownload, FaImage, FaPlay, FaPause } from "react-icons/fa";
+import { FaVideo, FaMagic, FaDownload, FaImage, FaPlay, FaPause, FaMicrophone } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -127,7 +127,7 @@ export default function VideoTemplate({ appInstance, userCredits, activeCreation
     }
   };
 
-  const handleDynamicImageUpload = async (e, key) => {
+  const handleDynamicFileUpload = async (e, key, maxInputs = 1, fileTypeLabel = "File") => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -137,16 +137,29 @@ export default function VideoTemplate({ appInstance, userCredits, activeCreation
 
     try {
       const { data } = await axios.post("/api/upload", formData);
-      setCustomValues(prev => ({
-        ...prev,
-        [key]: [data.url]
-      }));
-      toast.success("Image uploaded!");
+      setCustomValues(prev => {
+        const currentList = Array.isArray(prev[key]) ? prev[key] : [];
+        return {
+          ...prev,
+          [key]: [...currentList, data.url].slice(0, maxInputs)
+        };
+      });
+      toast.success(`${fileTypeLabel} uploaded successfully!`);
     } catch (err) {
-      toast.error("Failed to upload image.");
+      toast.error(`Failed to upload ${fileTypeLabel.toLowerCase()}.`);
     } finally {
       setUploading(false);
     }
+  };
+
+  const removeDynamicFile = (key, idx) => {
+    setCustomValues(prev => {
+      const currentList = Array.isArray(prev[key]) ? prev[key] : [];
+      return {
+        ...prev,
+        [key]: currentList.filter((_, i) => i !== idx)
+      };
+    });
   };
 
   const handleGenerate = async (e) => {
@@ -175,10 +188,23 @@ export default function VideoTemplate({ appInstance, userCredits, activeCreation
       if (userParams.length > 0) {
         userParams.forEach(p => {
           if (p.key !== "prompt") {
-            if (p.type === "image_list") {
-              inputImageVal = customValues[p.key]?.[0] || null;
+            const isUploadType = ["image_list", "video_list", "audio_list"].includes(p.type);
+            if (isUploadType) {
+              const fileList = Array.isArray(customValues[p.key]) ? customValues[p.key] : [];
+              const isListKey = p.key.endsWith("_list") || (p.maxInputs && p.maxInputs > 1);
+
+              if (isListKey) {
+                customParams[p.key] = fileList;
+              } else {
+                customParams[p.key] = fileList[0] || "";
+              }
+
+              if (p.type === "image_list" && !inputImageVal) {
+                inputImageVal = fileList[0] || null;
+              }
+            } else {
+              customParams[p.key] = customValues[p.key];
             }
-            customParams[p.key] = customValues[p.key];
           }
         });
       }
@@ -253,37 +279,74 @@ export default function VideoTemplate({ appInstance, userCredits, activeCreation
         <form onSubmit={handleGenerate} className="space-y-6">
           {userParams.length > 0 ? (
             userParams.map((param) => {
-              if (param.type === "image_list") {
-                const imgUrl = customValues[param.key]?.[0];
+              if (["image_list", "video_list", "audio_list"].includes(param.type)) {
+                const urls = Array.isArray(customValues[param.key]) ? customValues[param.key] : (customValues[param.key] ? [customValues[param.key]] : []);
+                const maxInps = param.maxInputs || 1;
+
+                let fileAccept = "image/*";
+                let icon = <FaImage className="text-xl" />;
+                let labelText = "Image";
+                if (param.type === "video_list") {
+                  fileAccept = "video/*";
+                  icon = <FaVideo className="text-xl" />;
+                  labelText = "Video";
+                } else if (param.type === "audio_list") {
+                  fileAccept = "audio/*";
+                  icon = <FaMicrophone className="text-xl" />;
+                  labelText = "Audio";
+                }
+
                 return (
-                  <div key={param.key} className="space-y-2">
-                    <label className="text-xs font-bold text-secondary-text uppercase tracking-wider">{param.label}</label>
-                    <div className="relative border-2 border-dashed border-divider hover:border-primary/50 transition-colors rounded-lg h-32 flex flex-col items-center justify-center bg-bg-page/40 p-4">
-                      {imgUrl ? (
-                        <div className="w-full h-full relative group">
-                          <img src={imgUrl} alt="Source frame" className="w-full h-full object-contain rounded" />
-                          <button
-                            type="button"
-                            onClick={() => setCustomValues(prev => ({ ...prev, [param.key]: [] }))}
-                            className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs text-white font-bold transition-opacity rounded"
-                          >
-                            Remove Image
-                          </button>
-                        </div>
-                      ) : (
-                        <label className="cursor-pointer flex flex-col items-center gap-2 text-xs font-semibold text-secondary-text">
-                          <FaImage className="text-xl" />
-                          <span>{uploading ? "Uploading..." : "Upload Source Frame"}</span>
+                  <div key={param.key} className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="text-xs font-bold text-secondary-text uppercase tracking-wider">{param.label}</label>
+                      <span className="text-[10px] text-secondary-text font-bold bg-bg-page px-2 py-0.5 rounded border border-divider">
+                        {urls.length}/{maxInps} {maxInps > 1 ? "Files" : "File"}
+                      </span>
+                    </div>
+
+                    {urls.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2">
+                        {urls.map((url, idx) => (
+                          <div key={idx} className="relative aspect-square border border-divider rounded bg-bg-page/80 overflow-hidden group">
+                            {param.type === "image_list" ? (
+                              <img src={url} alt="Uploaded source" className="w-full h-full object-cover" />
+                            ) : param.type === "video_list" ? (
+                              <div className="w-full h-full flex items-center justify-center bg-black">
+                                <FaVideo size={16} className="text-primary" />
+                              </div>
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-bg-card">
+                                <FaMicrophone size={16} className="text-primary" />
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => removeDynamicFile(param.key, idx)}
+                              className="absolute top-1 right-1 bg-red-500/80 hover:bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-bold cursor-pointer transition-colors"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {urls.length < maxInps && (
+                      <div className="relative border-2 border-dashed border-divider hover:border-primary/50 transition-colors rounded-lg h-24 flex flex-col items-center justify-center bg-bg-page/40 p-2">
+                        <label className="cursor-pointer flex flex-col items-center gap-1.5 text-xs font-semibold text-secondary-text">
+                          {icon}
+                          <span className="text-[10px]">{uploading ? "Uploading..." : `Upload ${labelText}`}</span>
                           <input
                             type="file"
-                            onChange={(e) => handleDynamicImageUpload(e, param.key)}
+                            onChange={(e) => handleDynamicFileUpload(e, param.key, maxInps, labelText)}
                             className="hidden"
-                            accept="image/*"
+                            accept={fileAccept}
                             disabled={uploading}
                           />
                         </label>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 );
               }

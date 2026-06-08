@@ -296,6 +296,8 @@ export default function StandaloneWorkspace() {
           valStr = `customParams.${p.key} !== undefined ? Number(customParams.${p.key}) : ${p.defaultValue !== "" && p.defaultValue !== undefined ? Number(p.defaultValue) : 0}`;
         } else if (p.type === "boolean") {
           valStr = `customParams.${p.key} !== undefined ? (customParams.${p.key} === true || customParams.${p.key} === "true") : ${p.defaultValue === true || p.defaultValue === "true"}`;
+        } else if (["image_list", "video_list", "audio_list"].includes(p.type)) {
+          valStr = `customParams.${p.key} !== undefined ? (Array.isArray(customParams.${p.key}) ? JSON.stringify(customParams.${p.key}) : String(customParams.${p.key})) : ${JSON.stringify(JSON.stringify(p.defaultValue || []))}`;
         } else {
           valStr = `customParams.${p.key} !== undefined ? String(customParams.${p.key}) : ${JSON.stringify(p.defaultValue || "")}`;
         }

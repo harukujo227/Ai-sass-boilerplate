@@ -70,3 +70,33 @@ Create a `.env` file in the root directory (based on `.env.example`):
    ```bash
    npm run build
    ```
+
+---
+
+## 🛠️ How to Launch a Custom SaaS App with Dynamic Parameter Uploads
+
+This Next.js SaaS platform includes a parameter designer that allows you to configure dynamic image, video, and audio uploads with strict input count limits.
+
+### 1. Define App Custom Parameters (JSON Schema)
+Click **Launch New App** on the main dashboard and paste a JSON template containing your prompt parameters. The system automatically inspects both keys and values to map them to appropriate form fields:
+* **Image Upload Fields**: Keys containing `image` or `img` (or string values ending in `.jpg`, `.png`, `.webp`, `.gif`) auto-detect as **Image Upload** (`image_list`).
+* **Video Upload Fields**: Keys containing `video` (or string values ending in `.mp4`, `.webm`, `.mov`) auto-detect as **Video Upload** (`video_list`).
+* **Audio Upload Fields**: Keys containing `audio` (or string values ending in `.mp3`, `.wav`, `.m4a`) auto-detect as **Audio Upload** (`audio_list`).
+* **Dropdowns (`enum`)**: String values with commas or matching common presets (e.g. `Auto`, `1k`, `2k`, `4k`) map to selections.
+* **Toggles (`boolean`)**: Boolean values map to toggle switches.
+* **Others**: Numbers map to number fields; text values with newlines (`\n`) map to textareas.
+
+### 2. Auto-Detected Input Limits & Configuration
+When an upload type is parsed, the parameter designer manages lists and limits automatically:
+* **Single vs. List Key Detection**: If a key contains `_list` (e.g., `images_list`) or the default JSON value is an array, the system sets the default **Max Uploads Limit** to **`5`**. Otherwise, single-upload parameters (e.g. `image_url`) default to **`1`**.
+* **Limit Range Adjustment**: You can dynamically modify the limits per-parameter using the **Max Uploads Limit** configuration input/slider (ranging from **1 to 10**) directly in the Launch Modal.
+
+### 3. Execution & Studio Rendering
+Upon launching the application, the dedicated studio route is created:
+1. **Dynamic File Dropzones**: The studio sidebar renders clean, custom file upload dashed blocks (supporting icons for images, videos, and audios).
+2. **Preview Grid & Deletion**: Uploaded items render in a responsive square preview grid with individual delete controls (`✕`).
+3. **Limit Enforcement**: The sidebar restricts uploading more files once the configured limit (`maxInputs`) is reached.
+4. **Data Packaging**: When generating output:
+   * Single inputs (`maxInputs === 1`) are packaged as a single string URL value (e.g. `"https://cdn.muapi.com/file.png"`).
+   * List inputs (`maxInputs > 1`) are packaged as an array of string URLs.
+   * Standalone generated database compiler strings automatically stringify array parameters to ensure safe Prisma serialization in the background.

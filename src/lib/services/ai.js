@@ -80,7 +80,11 @@ export const AIService = {
       };
     }
 
-    const response = await fetch(`https://api.muapi.ai/api/v1/${finalEndpoint}?webhook=${encodeURIComponent(webhookUrl)}`, {
+    const targetUrl = finalEndpoint.startsWith("http://") || finalEndpoint.startsWith("https://")
+      ? `${finalEndpoint}?webhook=${encodeURIComponent(webhookUrl)}`
+      : `https://api.muapi.ai/api/v1/${finalEndpoint}?webhook=${encodeURIComponent(webhookUrl)}`;
+
+    const response = await fetch(targetUrl, {
       method: "POST",
       headers: {
         "x-api-key": apiKey,

@@ -206,15 +206,19 @@ export default function PlatformDashboard() {
   };
 
   const handleExportApp = async (id, name) => {
-    const toastId = toast.loading(`Exporting ${name} to GitHub & Vercel...`);
+    const toastId = toast.loading(`Exporting ${name}...`);
     try {
       const { data } = await axios.post("/api/app-instances/export", { appId: id });
-      if (data.deployedUrl) {
+      if (data.repoUrl) {
         toast.success(
           <div className="space-y-1">
-            <p className="font-bold text-xs">Deployed to cloud! 🚀</p>
+            <p className="font-bold text-xs">
+              {data.deployedUrl ? "Deployed to cloud! 🚀" : "Pushed to GitHub! 📦"}
+            </p>
             <a href={data.repoUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-400 underline block truncate">{data.repoUrl}</a>
-            <a href={data.deployedUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] text-emerald-400 underline block truncate">{data.deployedUrl}</a>
+            {data.deployedUrl && (
+              <a href={data.deployedUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] text-emerald-400 underline block truncate">{data.deployedUrl}</a>
+            )}
           </div>,
           { id: toastId, duration: 12000 }
         );

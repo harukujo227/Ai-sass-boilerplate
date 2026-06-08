@@ -306,18 +306,18 @@ export default function StandaloneWorkspace() {
     const githubToken = process.env.GITHUB_TOKEN;
     const vercelToken = process.env.VERCEL_TOKEN;
 
-    if (!githubToken || !vercelToken) {
+    if (!githubToken) {
       if (process.env.VERCEL === "1") {
         return NextResponse.json(
           {
-            error: "Cloud export is not configured. Please ensure both GITHUB_TOKEN and VERCEL_TOKEN are set in your Vercel Project Environment Variables.",
+            error: "Cloud export is not configured. Please ensure GITHUB_TOKEN is set in your Vercel Project Environment Variables.",
           },
           { status: 400 }
         );
       }
     }
 
-    if (githubToken && vercelToken) {
+    if (githubToken) {
       // ═══════════════════════════════════════════════════════════════════════
       // CLOUD EXPORT: GitHub Git Trees API (single atomic commit) + Vercel
       // ═══════════════════════════════════════════════════════════════════════
@@ -603,85 +603,9 @@ export default function StandaloneWorkspace() {
         `All files committed to ${repoFullName} in a single commit!`,
       );
 
-      // 9. Create Vercel Project linked to the GitHub repo
-      const vercelProjRes = await fetch("https://api.vercel.com/v9/projects", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${vercelToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: repoName,
-          framework: "nextjs",
-          gitRepository: {
-            type: "github",
-            repo: repoFullName,
-          },
-        }),
-      });
-      if (!vercelProjRes.ok) {
-        const vercelErr = await vercelProjRes.text();
-        console.error("Vercel project creation error:", vercelErr);
-        // Non-fatal: repo is still usable without Vercel
-      }
-
-      // 10. Forward environment variables to Vercel
-      const envKeys = [
-        "DATABASE_URL",
-        "DIRECT_URL",
-        "NEXTAUTH_SECRET",
-        "MUAPIAPP_API_KEY",
-        "WEBHOOK_URL",
-        "GOOGLE_CLIENT_ID",
-        "GOOGLE_CLIENT_SECRET",
-        "STRIPE_SECRET_KEY",
-        "STRIPE_WEBHOOK_SECRET",
-        "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
-      ];
-      for (const key of envKeys) {
-        const val = process.env[key];
-        if (val) {
-          await fetch(
-            `https://api.vercel.com/v10/projects/${repoName}/env`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${vercelToken}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                key,
-                value: val,
-                type: key.startsWith("NEXT_PUBLIC_") ? "plain" : "encrypted",
-                target: ["production", "preview", "development"],
-              }),
-            },
-          );
-        }
-      }
-
-      // Add NEXTAUTH_URL pointing to the Vercel domain
-      await fetch(
-        `https://api.vercel.com/v10/projects/${repoName}/env`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${vercelToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            key: "NEXTAUTH_URL",
-            value: `https://${repoName}.vercel.app`,
-            type: "plain",
-            target: ["production", "preview", "development"],
-          }),
-        },
-      );
-
-      // 11. Trigger Vercel Deployment
-      const vercelDeployRes = await fetch(
-        "https://api.vercel.com/v13/deployments",
-        {
+      if (vercelToken) {
+        // 9. Create Vercel Project linked to the GitHub repo
+        const vercelProjRes = await fetch("https://api.vercel.com/v9/projects", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${vercelToken}`,
@@ -689,30 +613,113 @@ export default function StandaloneWorkspace() {
           },
           body: JSON.stringify({
             name: repoName,
-            project: repoName,
-            gitSource: {
+            framework: "nextjs",
+            gitRepository: {
               type: "github",
               repo: repoFullName,
-              ref: defaultBranch,
             },
           }),
-        },
-      );
-      if (!vercelDeployRes.ok) {
-        console.error(
-          "Vercel deployment trigger error:",
-          await vercelDeployRes.text(),
+        });
+        if (!vercelProjRes.ok) {
+          const vercelErr = await vercelProjRes.text();
+          console.error("Vercel project creation error:", vercelErr);
+          // Non-fatal: repo is still usable without Vercel
+        }
+
+        // 10. Forward environment variables to Vercel
+        const envKeys = [
+          "DATABASE_URL",
+          "DIRECT_URL",
+          "NEXTAUTH_SECRET",
+          "MUAPIAPP_API_KEY",
+          "WEBHOOK_URL",
+          "GOOGLE_CLIENT_ID",
+          "GOOGLE_CLIENT_SECRET",
+          "STRIPE_SECRET_KEY",
+          "STRIPE_WEBHOOK_SECRET",
+          "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+        ];
+        for (const key of envKeys) {
+          const val = process.env[key];
+          if (val) {
+            await fetch(
+              `https://api.vercel.com/v10/projects/${repoName}/env`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${vercelToken}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  key,
+                  value: val,
+                  type: key.startsWith("NEXT_PUBLIC_") ? "plain" : "encrypted",
+                  target: ["production", "preview", "development"],
+                }),
+              },
+            );
+          }
+        }
+
+        // Add NEXTAUTH_URL pointing to the Vercel domain
+        await fetch(
+          `https://api.vercel.com/v10/projects/${repoName}/env`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${vercelToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              key: "NEXTAUTH_URL",
+              value: `https://${repoName}.vercel.app`,
+              type: "plain",
+              target: ["production", "preview", "development"],
+            }),
+          },
+        );
+
+        // 11. Trigger Vercel Deployment
+        const vercelDeployRes = await fetch(
+          "https://api.vercel.com/v13/deployments",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${vercelToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: repoName,
+              project: repoName,
+              gitSource: {
+                type: "github",
+                repo: repoFullName,
+                ref: defaultBranch,
+              },
+            }),
+          },
+        );
+        if (!vercelDeployRes.ok) {
+          console.error(
+            "Vercel deployment trigger error:",
+            await vercelDeployRes.text(),
+          );
+        }
+
+        console.log(
+          `Successfully exported to GitHub and deployed: https://${repoName}.vercel.app`,
+        );
+      } else {
+        console.log(
+          `Successfully exported to GitHub: https://github.com/${repoFullName}`
         );
       }
 
-      console.log(
-        `Successfully exported to GitHub and deployed: https://${repoName}.vercel.app`,
-      );
       return NextResponse.json({
         success: true,
         slug: repoName,
         repoUrl: `https://github.com/${repoFullName}`,
-        deployedUrl: `https://${repoName}.vercel.app`,
+        deployedUrl: vercelToken ? `https://${repoName}.vercel.app` : null,
       });
     } else {
       // LOCAL FILESYSTEM EXPORT FLOW (Original logic fallback)

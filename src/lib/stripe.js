@@ -8,3 +8,6 @@ const apiKey = config.stripe.secretKey && config.stripe.secretKey.trim() !== ""
 export const stripe = new Stripe(apiKey, {
   apiVersion: "2023-10-16",
 });
+
+export default stripe;
+

@@ -46,3 +46,8 @@ export const BillingService = {
     return { success: false };
   }
 };
+
+export const createCheckoutSession = BillingService.createCheckoutSession.bind(BillingService);
+export const handleWebhook = BillingService.handleWebhook.bind(BillingService);
+export default BillingService;
+

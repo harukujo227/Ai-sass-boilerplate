@@ -24,3 +24,6 @@ export const authOptions = {
     signIn: "/login",
   },
 };
+
+export default authOptions;
+

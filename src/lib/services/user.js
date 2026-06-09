@@ -40,3 +40,9 @@ export const UserService = {
     });
   },
 };
+
+export const getCredits = UserService.getCredits.bind(UserService);
+export const addCredits = UserService.addCredits.bind(UserService);
+export const deductCredits = UserService.deductCredits.bind(UserService);
+export default UserService;
+

@@ -37,6 +37,17 @@ export default function AppInstanceGallery({ params }) {
     fetchGalleryData();
   }, [appId]);
 
+  useEffect(() => {
+    if (appInstance) {
+      const parsed = appInstance.config ? JSON.parse(appInstance.config) : {};
+      const theme = parsed.theme || "slate-indigo";
+      document.documentElement.setAttribute("data-theme", theme);
+      return () => {
+        document.documentElement.removeAttribute("data-theme");
+      };
+    }
+  }, [appInstance]);
+
   const handleDownload = (url, name) => {
     const downloadUrl = `/api/download?url=${encodeURIComponent(url)}`;
     const a = document.createElement("a");

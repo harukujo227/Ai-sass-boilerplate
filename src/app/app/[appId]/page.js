@@ -42,6 +42,17 @@ export default function AppInstanceWorkspace({ params }) {
     fetchAppData();
   }, [appId]);
 
+  useEffect(() => {
+    if (appInstance) {
+      const parsed = appInstance.config ? JSON.parse(appInstance.config) : {};
+      const theme = parsed.theme || "slate-indigo";
+      document.documentElement.setAttribute("data-theme", theme);
+      return () => {
+        document.documentElement.removeAttribute("data-theme");
+      };
+    }
+  }, [appInstance]);
+
   // Polling loop: update creations if any are "processing"
   useEffect(() => {
     const hasProcessing = creations.some((c) => c.status === "processing");

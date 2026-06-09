@@ -67,6 +67,7 @@ export default function PlatformDashboard() {
   const [modelEngine, setModelEngine] = useState("nano-banana-2");
   const [endpointOverride, setEndpointOverride] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState("slate-indigo");
 
   // Parameter Designer State
   const [userParams, setUserParams] = useState([]);
@@ -188,6 +189,7 @@ export default function PlatformDashboard() {
         model: modelEngine || (selectedTemplateId === "ai-image" ? "nano-banana-2" : selectedTemplateId === "ai-chat" ? "gpt-4o" : "openai-whisper"),
         creditCost: Number(creditCost) || 1,
         modelEndpoint: endpointOverride || (selectedTemplateId === "ai-chat" ? "chat/completions" : "predictions"),
+        theme: selectedTheme || "slate-indigo",
         userParams: userParams
       };
 
@@ -203,6 +205,7 @@ export default function PlatformDashboard() {
       setCreditCost(1);
       setModelEngine("nano-banana-2");
       setEndpointOverride("");
+      setSelectedTheme("slate-indigo");
       setUserParams([]);
       setJsonInput("");
       setShowParamsSection(false);
@@ -517,6 +520,21 @@ export default function PlatformDashboard() {
                             onChange={(e) => setEndpointOverride(e.target.value)}
                             placeholder="e.g. https://api.muapi.ai/api/v1/nano-banana-2"
                             className="w-full bg-bg-page border border-divider/60 rounded py-2 px-3 text-xs outline-none focus:border-primary/60 transition-all font-semibold text-primary-text min-h-[38px]"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-secondary-text uppercase tracking-wider block">Visual Theme</label>
+                          <CustomSelect
+                            value={selectedTheme}
+                            onChange={(val) => setSelectedTheme(val)}
+                            options={[
+                              { label: "Slate / Indigo (Default)", value: "slate-indigo" },
+                              { label: "Neon Cyberpunk", value: "cyberpunk" },
+                              { label: "Emerald Forest", value: "emerald" },
+                              { label: "Sunset Orange", value: "sunset" },
+                              { label: "Midnight Dark", value: "midnight" }
+                            ]}
                           />
                         </div>
                       </div>

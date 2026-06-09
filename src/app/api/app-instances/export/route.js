@@ -416,6 +416,18 @@ export default function StandaloneWorkspace() {
         if (file.relPath === "src/lib/standaloneConfig.js") {
           return { text: configContent };
         }
+        if (file.relPath === "src/app/layout.js") {
+          let c = fs.readFileSync(file.fullPath, "utf8");
+          c = c.replace(
+            /export default function RootLayout/,
+            `import { standaloneConfig } from "@/lib/standaloneConfig";\n\nexport default function RootLayout`
+          );
+          c = c.replace(
+            /<html lang="en" className=\{\`\$\{inter.variable\} h-full\`\}/,
+            `<html lang="en" className={\`\$\{inter.variable\} h-full\`} data-theme={standaloneConfig.config?.theme || "slate-indigo"}`
+          );
+          return { text: c };
+        }
         if (file.relPath === "src/app/page.js") {
           return { text: workspacePageCode };
         }
@@ -836,6 +848,21 @@ export default function StandaloneWorkspace() {
         );
 
         fs.writeFileSync(aiServicePath, aiContent, "utf8");
+      }
+
+      // 5.6. Update layout.js to set standalone theme
+      const layoutPath = path.join(targetDir, "src", "app", "layout.js");
+      if (fs.existsSync(layoutPath)) {
+        let layoutContent = fs.readFileSync(layoutPath, "utf8");
+        layoutContent = layoutContent.replace(
+          /export default function RootLayout/,
+          `import { standaloneConfig } from "@/lib/standaloneConfig";\n\nexport default function RootLayout`
+        );
+        layoutContent = layoutContent.replace(
+          /<html lang="en" className=\{\`\$\{inter.variable\} h-full\`\}/,
+          `<html lang="en" className={\`\$\{inter.variable\} h-full\`} data-theme={standaloneConfig.config?.theme || "slate-indigo"}`
+        );
+        fs.writeFileSync(layoutPath, layoutContent, "utf8");
       }
 
       // 6. Delete dynamic dynamic routes folder (src/app/app)

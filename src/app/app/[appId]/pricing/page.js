@@ -41,6 +41,17 @@ export default function AppInstancePricing({ params }) {
     fetchAppDetails();
   }, [appId]);
 
+  useEffect(() => {
+    if (appInstance) {
+      const parsed = appInstance.config ? JSON.parse(appInstance.config) : {};
+      const theme = parsed.theme || "slate-indigo";
+      document.documentElement.setAttribute("data-theme", theme);
+      return () => {
+        document.documentElement.removeAttribute("data-theme");
+      };
+    }
+  }, [appInstance]);
+
   const handleCheckout = async (planId) => {
     if (status !== "authenticated") {
       toast.error("You must sign in with Google to purchase credit packages.");

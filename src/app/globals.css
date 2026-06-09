@@ -13,6 +13,7 @@
   --color-primary-hover: var(--primary-hover, #7c3aed);
   --color-primary-text: var(--primary-text, #f4f4f5);
   --color-secondary-text: var(--secondary-text, #a1a1aa);
+  --color-primary-btn-text: var(--primary-btn-text, #ffffff);
 }
 
 /* Premium Visual Themes Override Definitions */
@@ -26,6 +27,7 @@
   --primary-hover: #e11d48;
   --primary-text: #fff1f2;
   --secondary-text: #06b6d4;
+  --primary-btn-text: #ffffff;
 }
 
 [data-theme="emerald"] {
@@ -38,6 +40,7 @@
   --primary-hover: #059669;
   --primary-text: #ecfdf5;
   --secondary-text: #34d399;
+  --primary-btn-text: #ffffff;
 }
 
 [data-theme="sunset"] {
@@ -50,6 +53,7 @@
   --primary-hover: #ea580c;
   --primary-text: #fff7ed;
   --secondary-text: #fb923c;
+  --primary-btn-text: #ffffff;
 }
 
 [data-theme="midnight"] {
@@ -62,6 +66,11 @@
   --primary-hover: #e4e4e7;
   --primary-text: #f4f4f5;
   --secondary-text: #a1a1aa;
+  --primary-btn-text: #000000;
+}
+
+.bg-primary {
+  color: var(--primary-btn-text, #ffffff) !important;
 }
 
 @layer base {

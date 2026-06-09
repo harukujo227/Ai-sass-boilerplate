@@ -81,7 +81,12 @@ export async function POST(req) {
       if (appInstance.templateId === "ai-chat") {
         endpointToCall = parsedConfig.modelEndpoint || "chat/completions";
       } else {
-        endpointToCall = parsedConfig.modelEndpoint || "predictions";
+        if (inputImage) {
+          endpointToCall = parsedConfig.editModelEndpoint || parsedConfig.modelEndpoint || "predictions";
+          modelName = parsedConfig.editModel || parsedConfig.model || null;
+        } else {
+          endpointToCall = parsedConfig.modelEndpoint || "predictions";
+        }
       }
     }
 

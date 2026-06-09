@@ -416,6 +416,20 @@ export default function StandaloneWorkspace() {
         if (file.relPath === "src/lib/standaloneConfig.js") {
           return { text: configContent };
         }
+        if (file.relPath === "src/lib/config.js") {
+          let c = fs.readFileSync(file.fullPath, "utf8");
+          c = c.replace(
+            /appName:\s*["'][^"']*["']/g,
+            `appName: "${appInstance.name}"`
+          );
+          if (!c.includes("appName:")) {
+            c = c.replace(
+              /const config = \{/,
+              `const config = {\n  appName: "${appInstance.name}",`
+            );
+          }
+          return { text: c };
+        }
         if (file.relPath === "src/app/layout.js") {
           let c = fs.readFileSync(file.fullPath, "utf8");
           c = c.replace(

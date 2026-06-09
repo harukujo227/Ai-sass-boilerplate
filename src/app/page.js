@@ -66,6 +66,8 @@ export default function PlatformDashboard() {
   const [creditCost, setCreditCost] = useState(1);
   const [modelEngine, setModelEngine] = useState("nano-banana-2");
   const [endpointOverride, setEndpointOverride] = useState("");
+  const [editModelEngine, setEditModelEngine] = useState("");
+  const [editEndpointOverride, setEditEndpointOverride] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState("slate-indigo");
 
@@ -190,7 +192,9 @@ export default function PlatformDashboard() {
         creditCost: Number(creditCost) || 1,
         modelEndpoint: endpointOverride || (selectedTemplateId === "ai-chat" ? "chat/completions" : "predictions"),
         theme: selectedTheme || "slate-indigo",
-        userParams: userParams
+        userParams: userParams,
+        editModel: editModelEngine || "",
+        editModelEndpoint: editEndpointOverride || ""
       };
 
       await axios.post("/api/app-instances", {
@@ -205,6 +209,8 @@ export default function PlatformDashboard() {
       setCreditCost(1);
       setModelEngine("nano-banana-2");
       setEndpointOverride("");
+      setEditModelEngine("");
+      setEditEndpointOverride("");
       setSelectedTheme("slate-indigo");
       setUserParams([]);
       setJsonInput("");
@@ -519,6 +525,28 @@ export default function PlatformDashboard() {
                             value={endpointOverride}
                             onChange={(e) => setEndpointOverride(e.target.value)}
                             placeholder="e.g. https://api.muapi.ai/api/v1/nano-banana-2"
+                            className="w-full bg-bg-page border border-divider/60 rounded py-2 px-3 text-xs outline-none focus:border-primary/60 transition-all font-semibold text-primary-text min-h-[38px]"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-secondary-text uppercase tracking-wider block">Edit Model Engine (Optional)</label>
+                          <input
+                            type="text"
+                            value={editModelEngine}
+                            onChange={(e) => setEditModelEngine(e.target.value)}
+                            placeholder="e.g. nano-banana-2-edit (when image uploaded)"
+                            className="w-full bg-bg-page border border-divider/60 rounded py-2 px-3 text-xs outline-none focus:border-primary/60 transition-all font-semibold text-primary-text min-h-[38px]"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-secondary-text uppercase tracking-wider block">Edit API Endpoint (Optional)</label>
+                          <input
+                            type="text"
+                            value={editEndpointOverride}
+                            onChange={(e) => setEditEndpointOverride(e.target.value)}
+                            placeholder="e.g. https://api.muapi.ai/api/v1/nano-banana-2-edit"
                             className="w-full bg-bg-page border border-divider/60 rounded py-2 px-3 text-xs outline-none focus:border-primary/60 transition-all font-semibold text-primary-text min-h-[38px]"
                           />
                         </div>

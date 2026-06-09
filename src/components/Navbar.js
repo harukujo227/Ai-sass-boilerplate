@@ -7,12 +7,16 @@ import { usePathname } from "next/navigation";
 import { IoClose, IoMenu } from "react-icons/io5";
 import { FiMoon, FiSun, FiLogOut, FiDollarSign, FiPlus, FiUser } from "react-icons/fi";
 import { SiVercel } from "react-icons/si";
+import config from "@/lib/config";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const appName = config?.appName || "AI SaaS";
+  const logoLetter = appName.trim().charAt(0).toUpperCase();
 
   // Eagerly prefetch workspace/gallery routes for fast tabs
   useEffect(() => {
@@ -41,10 +45,10 @@ export default function Navbar() {
         {/* Logo and Brand Title (Visible at all times) */}
         <Link href="/" className="flex items-center gap-2 transition-transform hover:scale-[1.02] active:scale-95">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-white font-extrabold text-lg shadow-md shadow-primary/30">
-            A
+            {logoLetter}
           </div>
-          <span className="text-lg font-black tracking-tight text-primary-text">
-            AI<span className="text-primary">SaaS</span>
+          <span className="text-lg font-black tracking-tight text-primary-text text-nowrap">
+            {appName}
           </span>
         </Link>
 

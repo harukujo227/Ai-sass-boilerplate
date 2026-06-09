@@ -871,16 +871,15 @@ export default function StandaloneWorkspace() {
         deleteFolderRecursive(dynamicAppFolder);
       }
 
-      // 7. Write active local .env from template .env (to preserve DB connection credentials) or fallback to .env.example
+      // 7. Write local .env from .env.example to avoid copying actual secrets
       const envPath = path.join(targetDir, ".env");
-      const sourceEnvPath = path.join(sourceDir, ".env");
-      if (fs.existsSync(sourceEnvPath)) {
-        fs.copyFileSync(sourceEnvPath, envPath);
-      } else {
-        const envExamplePath = path.join(targetDir, ".env.example");
-        if (fs.existsSync(envExamplePath)) {
-          fs.copyFileSync(envExamplePath, envPath);
-        }
+      const sourceEnvExamplePath = path.join(sourceDir, ".env.example");
+      const targetEnvExamplePath = path.join(targetDir, ".env.example");
+
+      if (fs.existsSync(sourceEnvExamplePath)) {
+        fs.copyFileSync(sourceEnvExamplePath, envPath);
+      } else if (fs.existsSync(targetEnvExamplePath)) {
+        fs.copyFileSync(targetEnvExamplePath, envPath);
       }
 
       console.log(

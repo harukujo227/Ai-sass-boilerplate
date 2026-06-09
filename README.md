@@ -1,6 +1,9 @@
-# Reusable Standalone SaaS Boilerplate
+# 🚀 AI SaaS Starter — Open-Source Next.js AI SaaS Boilerplate (Free ShipFast / SaaSBoilerplate Alternative)
 
-A credit-based Next.js SaaS template powered by MUAPI. Build, deploy, and monetize custom AI generation products in minutes.
+> **The production-ready template powering 20+ open-source AI SaaS apps.** Ship a fully functional AI-powered SaaS with Google OAuth, Stripe credit billing, MuAPI AI engine, Prisma, and webhook-backed async generation — in minutes, not weeks. A free open-source alternative to ShipFast, SaaSBoilerplate, Gravity UI, and Bedrock — powered by the MuAPI AI engine.
+
+**Tech stack:** Next.js 14 (App Router) · Prisma · PostgreSQL · NextAuth (Google OAuth) · Stripe · Tailwind CSS · MuAPI · Webhook-backed async delivery
+**Use cases:** AI image generators · AI video generators · AI audio tools · Virtual try-on apps · AI writing tools · AI photo editors · Any credit-based generative AI SaaS
 
 ---
 

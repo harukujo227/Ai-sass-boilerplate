@@ -185,8 +185,11 @@ export default function PlatformDashboard() {
 
     setSubmitting(true);
     try {
+      const matchingTemplate = templates.find(t => t.id === selectedTemplateId);
+      const defaultSystemPrompt = matchingTemplate?.defaultConfig?.systemPrompt || "Standard instruction";
+
       const configObject = {
-        systemPrompt: customPrompt || "Standard instruction",
+        systemPrompt: customPrompt || defaultSystemPrompt,
         aspectRatio: "1:1",
         model: modelEngine || (selectedTemplateId === "ai-image" ? "nano-banana-2" : selectedTemplateId === "ai-chat" ? "gpt-4o" : "openai-whisper"),
         creditCost: Number(creditCost) || 1,
@@ -469,16 +472,6 @@ export default function PlatformDashboard() {
                         if (matching) setCustomPrompt(matching.defaultConfig.systemPrompt);
                       }}
                       options={templates.map(t => ({ label: t.name, value: t.id }))}
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-secondary-text uppercase tracking-wider block">Base Instructions (System Prompt)</label>
-                    <textarea
-                      value={customPrompt}
-                      onChange={(e) => setCustomPrompt(e.target.value)}
-                      placeholder="Inject base rules to shape the AI's output..."
-                      className="w-full bg-bg-page border border-divider/60 rounded p-3 text-xs outline-none focus:border-primary/60 transition-all h-32 resize-none font-semibold text-primary-text placeholder-secondary-text/50 leading-relaxed"
                     />
                   </div>
 

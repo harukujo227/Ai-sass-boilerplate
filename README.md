@@ -33,7 +33,6 @@
 ## 📖 Table of Contents
 
 - [What is this?](#-what-is-this)
-- [Screenshots](#-screenshots)
 - [Key Features](#-key-features)
 - [Tech Stack](#-tech-stack)
 - [Architecture](#-architecture)
@@ -68,32 +67,6 @@ One platform, infinite shippable AI products.
 
 > **Use cases:** AI image generators · AI video studios · virtual try-on · AI photo editors ·
 > companion chatbots · podcast/meeting transcribers · any credit-based generative-AI SaaS.
-
----
-
-## 📸 Screenshots
-
-> 🛠️ **Placeholders below** — drop your real captures into `docs/screenshots/` and update the paths.
-> (I can capture these for you once the app is running locally — just ask.)
-
-<table>
-  <tr>
-    <td width="50%"><img src="https://placehold.co/800x500/0f172a/6366f1/png?text=App+Builder+Dashboard" alt="Dashboard"></td>
-    <td width="50%"><img src="https://placehold.co/800x500/0f172a/10b981/png?text=Launch+New+App+%2B+Parameter+Designer" alt="Launch modal"></td>
-  </tr>
-  <tr>
-    <td align="center"><b>App Builder Console</b></td>
-    <td align="center"><b>Launch Modal + Parameter Designer</b></td>
-  </tr>
-  <tr>
-    <td width="50%"><img src="https://placehold.co/800x500/0f172a/f59e0b/png?text=Image+Studio+Workspace" alt="Image studio"></td>
-    <td width="50%"><img src="https://placehold.co/800x500/0f172a/ec4899/png?text=Output+Gallery" alt="Gallery"></td>
-  </tr>
-  <tr>
-    <td align="center"><b>Generation Workspace</b></td>
-    <td align="center"><b>Output Gallery</b></td>
-  </tr>
-</table>
 
 ---
 

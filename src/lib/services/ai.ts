@@ -2,13 +2,36 @@ import { prisma } from "../prisma";
 import { UserService } from "./user";
 import config from "../config";
 
+type GenerateOptions = {
+  prompt: string;
+  inputImage?: string | null;
+  aspectRatio?: string | null;
+  modelEndpoint?: string;
+  appId?: string | null;
+  creditCost?: number | null;
+  model?: string | null;
+  customParams?: Record<string, unknown>;
+};
+
 export const AIService = {
   /**
    * Submit a prediction job to MuAPI, deduct credits, and execute inline polling.
    */
-  async generate(userId, { prompt, inputImage, aspectRatio, modelEndpoint = "predictions", appId = null, creditCost = null, model = null, customParams = {} }) {
-    const cost = creditCost !== null ? Number(creditCost) : config.ai.generationCost;
-    
+  async generate(
+    userId: string,
+    {
+      prompt,
+      inputImage,
+      aspectRatio,
+      modelEndpoint = "predictions",
+      appId = null,
+      creditCost = null,
+      model = null,
+      customParams = {},
+    }: GenerateOptions,
+  ) {
+    const cost = creditCost !== null && creditCost !== undefined ? Number(creditCost) : config.ai.generationCost;
+
     // 1. Deduct credits
     await UserService.deductCredits(userId, cost);
 
@@ -17,7 +40,7 @@ export const AIService = {
       // Return local mock generation in development if API key is missing
       console.warn("MUAPIAPP_API_KEY is not configured. Running offline simulation.");
       const mockRequestId = `mock_${Math.random().toString(36).substring(2, 9)}`;
-      
+
       const creation = await prisma.creation.create({
         data: {
           userId,
@@ -29,7 +52,7 @@ export const AIService = {
           creditCost: cost,
           aspectRatio,
           appId,
-        }
+        },
       });
       return { id: creation.id, resultImage: creation.resultImage, status: "completed" };
     }
@@ -47,14 +70,14 @@ export const AIService = {
       finalEndpoint = modelName;
     }
 
-    let bodyPayload = {};
+    let bodyPayload: Record<string, unknown> = {};
     if (isLlm) {
       let finalPrompt = prompt;
       let systemPromptText = "You are a helpful AI assistant.";
       try {
         const parsed = JSON.parse(prompt);
         if (parsed.chatHistory) {
-          finalPrompt = parsed.chatHistory.map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n') + '\nAssistant:';
+          finalPrompt = parsed.chatHistory.map((m: { role: string; content: string }) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n') + '\nAssistant:';
         }
         if (parsed.systemPrompt) {
           systemPromptText = parsed.systemPrompt;
@@ -118,7 +141,7 @@ export const AIService = {
         creditCost: cost,
         aspectRatio,
         appId,
-      }
+      },
     });
 
     // 4. Inline Polling Loop (up to 15 seconds)
@@ -163,7 +186,7 @@ export const AIService = {
           status,
           resultImage: status === "completed" ? resultImage : null,
           error: status === "failed" ? "Polling returned failed status" : null,
-        }
+        },
       });
 
       // Refund if failed
@@ -178,10 +201,10 @@ export const AIService = {
   /**
    * Sync and heal status of a creation record using MuAPI state lookup.
    */
-  async syncStatus(creationId) {
+  async syncStatus(creationId: string) {
     const creation = await prisma.creation.findUnique({
       where: { id: creationId },
-      include: { app: true }
+      include: { app: true },
     });
     if (!creation || creation.status !== "processing") return creation;
 
@@ -203,7 +226,7 @@ export const AIService = {
           return await prisma.creation.update({
             where: { id: creationId },
             data: { status: "completed", resultImage: outputUrl },
-            include: { app: true }
+            include: { app: true },
           });
         } else if (checkStatus === "failed") {
           // Refund credits
@@ -211,7 +234,7 @@ export const AIService = {
           return await prisma.creation.update({
             where: { id: creationId },
             data: { status: "failed", error: result.error || "Generation failed" },
-            include: { app: true }
+            include: { app: true },
           });
         }
       }
@@ -220,5 +243,5 @@ export const AIService = {
     }
 
     return creation;
-  }
+  },
 };

@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import { Providers } from "./providers";
+import config from "@/lib/config";
 import "./globals.css";
 
 const inter = Inter({
@@ -8,9 +9,11 @@ const inter = Inter({
   display: "swap",
 });
 
+const appName = config?.appName || "AI SaaS";
+
 export const metadata = {
-  title: "AI SaaS Template - Powered by MUAPI",
-  description: "Deploy a premium, monetized credit-based SaaS application in minutes.",
+  title: `${appName} — Build & Ship Credit-Based AI Apps`,
+  description: `${appName} is a platform to launch, brand, and ship credit-based AI apps — image, video, chat, and audio — in minutes.`,
 };
 
 export default function RootLayout({ children }) {

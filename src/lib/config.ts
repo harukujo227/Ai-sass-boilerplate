@@ -18,12 +18,12 @@ const config = {
       standard: { id: "standard", name: "Standard Pack", credits: 250, price: 1000 },
       pro: { id: "pro", name: "Professional Pack", credits: 600, price: 2000 },
       business: { id: "business", name: "Business Pack", credits: 2000, price: 5000 },
-    }
+    },
   },
   ai: {
     apiKey: process.env.MUAPIAPP_API_KEY,
     generationCost: 1, // Default cost per AI call
-  }
+  },
 };
 
 export default config;

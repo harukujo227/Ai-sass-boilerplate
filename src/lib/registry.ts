@@ -1,9 +1,28 @@
+import type { ComponentType } from "react";
 import ImageTemplate from "@/components/templates/ImageTemplate";
 import ChatTemplate from "@/components/templates/ChatTemplate";
 import AudioTemplate from "@/components/templates/AudioTemplate";
 import VideoTemplate from "@/components/templates/VideoTemplate";
 
-export const templateRegistry = {
+export type TemplateConfigField = {
+  name: string;
+  label: string;
+  type: string;
+  placeholder?: string;
+  options?: string[];
+};
+
+export type Template = {
+  id: string;
+  name: string;
+  description: string;
+  component: ComponentType<any>;
+  modelEndpoint: string;
+  defaultConfig: Record<string, unknown>;
+  configFields: TemplateConfigField[];
+};
+
+export const templateRegistry: Record<string, Template> = {
   "ai-image": {
     id: "ai-image",
     name: "AI Image Studio",
@@ -70,6 +89,5 @@ export const templateRegistry = {
   }
 };
 
-export const getTemplate = (id) => templateRegistry[id] || null;
-export const getAllTemplates = () => Object.values(templateRegistry);
-
+export const getTemplate = (id: string): Template | null => templateRegistry[id] || null;
+export const getAllTemplates = (): Template[] => Object.values(templateRegistry);

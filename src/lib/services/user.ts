@@ -1,7 +1,7 @@
 import { prisma } from "../prisma";
 
 export const UserService = {
-  async getCredits(userId) {
+  async getCredits(userId: string): Promise<number> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { credits: true },
@@ -9,7 +9,7 @@ export const UserService = {
     return user ? user.credits : 0;
   },
 
-  async addCredits(userId, amount) {
+  async addCredits(userId: string, amount: number) {
     if (amount <= 0) return;
     return await prisma.user.update({
       where: { id: userId },
@@ -21,9 +21,9 @@ export const UserService = {
     });
   },
 
-  async deductCredits(userId, amount) {
+  async deductCredits(userId: string, amount: number) {
     if (amount <= 0) return;
-    
+
     // Check if the user has enough credits
     const currentCredits = await this.getCredits(userId);
     if (currentCredits < amount) {
@@ -45,4 +45,3 @@ export const getCredits = UserService.getCredits.bind(UserService);
 export const addCredits = UserService.addCredits.bind(UserService);
 export const deductCredits = UserService.deductCredits.bind(UserService);
 export default UserService;
-

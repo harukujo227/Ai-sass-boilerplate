@@ -13,7 +13,13 @@ const ASPECT_RATIOS = [
   { id: "9:16", label: "9:16 Portrait", width: "w-12 h-20" }
 ];
 
-function CustomSelect({ value, onChange, options, placeholder = "Select option", className = "" }) {
+function CustomSelect({ value, onChange, options, placeholder = "Select option", className = "" }: {
+  value: string;
+  onChange: (val: string) => void;
+  options: { label: string; value: string }[];
+  placeholder?: string;
+  className?: string;
+}) {
   const [open, setOpen] = useState(false);
   const selectedOption = options.find(opt => opt.value === value) || { label: placeholder, value };
   
@@ -54,21 +60,45 @@ function CustomSelect({ value, onChange, options, placeholder = "Select option",
   );
 }
 
-export default function ImageTemplate({ appInstance, userCredits, activeCreation, onCreationCompleted }) {
+type AppInstanceLike = {
+  id: string;
+  name: string;
+  templateId?: string;
+  config?: string | null;
+};
+
+type CreationLike = {
+  id: string;
+  prompt?: string | null;
+  inputImage?: string | null;
+  resultImage?: string | null;
+  aspectRatio?: string | null;
+  status: string;
+  error?: string | null;
+};
+
+type ImageTemplateProps = {
+  appInstance: AppInstanceLike;
+  userCredits?: number;
+  activeCreation?: CreationLike | null;
+  onCreationCompleted: () => void;
+};
+
+export default function ImageTemplate({ appInstance, userCredits, activeCreation, onCreationCompleted }: ImageTemplateProps) {
   const parsedConfig = appInstance.config ? JSON.parse(appInstance.config) : {};
   const userParams = parsedConfig.userParams || [];
 
   const [prompt, setPrompt] = useState("");
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [aspectRatio, setAspectRatio] = useState(parsedConfig.aspectRatio || "1:1");
   const [generating, setGenerating] = useState(false);
   const [beforeAfterSlider, setBeforeAfterSlider] = useState(50);
 
   // Dynamic Parameter State
-  const [customValues, setCustomValues] = useState(() => {
-    const initial = {};
-    userParams.forEach(p => {
+  const [customValues, setCustomValues] = useState<Record<string, any>>(() => {
+    const initial: Record<string, any> = {};
+    userParams.forEach((p: any) => {
       initial[p.key] = p.defaultValue !== undefined ? p.defaultValue : "";
     });
     return initial;
@@ -79,7 +109,7 @@ export default function ImageTemplate({ appInstance, userCredits, activeCreation
     let baseCost = parsedConfig.creditCost !== undefined ? Number(parsedConfig.creditCost) : config.ai.generationCost;
     let totalCost = baseCost;
 
-    userParams.forEach(p => {
+    userParams.forEach((p: any) => {
       const val = customValues[p.key] !== undefined ? customValues[p.key] : p.defaultValue;
       
       if (p.type === "enum") {
@@ -107,7 +137,7 @@ export default function ImageTemplate({ appInstance, userCredits, activeCreation
     return Math.max(0, totalCost);
   };
 
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -126,7 +156,7 @@ export default function ImageTemplate({ appInstance, userCredits, activeCreation
     }
   };
 
-  const handleDynamicFileUpload = async (e, key, maxInputs = 1, fileTypeLabel = "File") => {
+  const handleDynamicFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, key: string, maxInputs = 1, fileTypeLabel = "File") => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -151,7 +181,7 @@ export default function ImageTemplate({ appInstance, userCredits, activeCreation
     }
   };
 
-  const removeDynamicFile = (key, idx) => {
+  const removeDynamicFile = (key: string, idx: number) => {
     setCustomValues(prev => {
       const currentList = Array.isArray(prev[key]) ? prev[key] : [];
       return {
@@ -161,13 +191,13 @@ export default function ImageTemplate({ appInstance, userCredits, activeCreation
     });
   };
 
-  const handleGenerate = async (e) => {
+  const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Resolve dynamic prompt if configured, otherwise fallback to local prompt state
     let finalPrompt = prompt;
     if (userParams.length > 0) {
-      const promptParam = userParams.find(p => p.key === "prompt");
+      const promptParam = userParams.find((p: any) => p.key === "prompt");
       if (promptParam) {
         finalPrompt = customValues["prompt"] || "";
       }
@@ -183,12 +213,12 @@ export default function ImageTemplate({ appInstance, userCredits, activeCreation
 
     try {
       // Gather other custom fields
-      const customParams = {};
+      const customParams: Record<string, any> = {};
       let inputImageVal = image;
       let aspectRatioVal = aspectRatio;
 
       if (userParams.length > 0) {
-        userParams.forEach(p => {
+        userParams.forEach((p: any) => {
           if (p.key !== "prompt") {
             const isUploadType = ["image_list", "video_list", "audio_list"].includes(p.type);
             if (isUploadType) {
@@ -229,14 +259,14 @@ export default function ImageTemplate({ appInstance, userCredits, activeCreation
         toast.success("Generation completed!", { id: toastId });
       }
       onCreationCompleted();
-    } catch (err) {
+    } catch (err: any) {
       toast.error(err.response?.data?.error || "Generation failed.", { id: toastId });
     } finally {
       setGenerating(false);
     }
   };
 
-  const handleDownload = (url) => {
+  const handleDownload = (url: string) => {
     const downloadUrl = `/api/download?url=${encodeURIComponent(url)}`;
     const a = document.createElement("a");
     a.href = downloadUrl;
@@ -257,7 +287,7 @@ export default function ImageTemplate({ appInstance, userCredits, activeCreation
 
         <form onSubmit={handleGenerate} className="space-y-6">
           {userParams.length > 0 ? (
-            userParams.map((param) => {
+            userParams.map((param: any) => {
               if (["image_list", "video_list", "audio_list"].includes(param.type)) {
                 const urls = Array.isArray(customValues[param.key]) ? customValues[param.key] : (customValues[param.key] ? [customValues[param.key]] : []);
                 const maxInps = param.maxInputs || 1;
@@ -286,7 +316,7 @@ export default function ImageTemplate({ appInstance, userCredits, activeCreation
 
                     {urls.length > 0 && (
                       <div className="grid grid-cols-3 gap-2">
-                        {urls.map((url, idx) => (
+                        {urls.map((url: string, idx: number) => (
                           <div key={idx} className="relative aspect-square border border-divider rounded bg-bg-page/80 overflow-hidden group">
                             {param.type === "image_list" ? (
                               <img src={url} alt="Uploaded source" className="w-full h-full object-cover" />
@@ -358,7 +388,7 @@ export default function ImageTemplate({ appInstance, userCredits, activeCreation
                     <CustomSelect
                       value={customValues[param.key]}
                       onChange={(val) => setCustomValues(prev => ({ ...prev, [param.key]: val }))}
-                      options={options.map(opt => ({ label: opt, value: opt }))}
+                      options={options.map((opt: string) => ({ label: opt, value: opt }))}
                     />
                   </div>
                 );
@@ -540,7 +570,7 @@ export default function ImageTemplate({ appInstance, userCredits, activeCreation
                     <span className="animate-pulse">MuAPI processing image...</span>
                   </div>
                 ) : activeCreation.status === "completed" ? (
-                  <img src={activeCreation.resultImage} alt="AI output" className="w-full h-full object-contain" />
+                  <img src={activeCreation.resultImage ?? undefined} alt="AI output" className="w-full h-full object-contain" />
                 ) : (
                   <div className="flex flex-col items-center gap-2 text-xs text-red-500 font-bold">
                     <span>Generation failed.</span>
@@ -561,7 +591,7 @@ export default function ImageTemplate({ appInstance, userCredits, activeCreation
               </div>
               {activeCreation.status === "completed" && (
                 <button
-                  onClick={() => handleDownload(activeCreation.resultImage)}
+                  onClick={() => activeCreation.resultImage && handleDownload(activeCreation.resultImage)}
                   className="bg-bg-page hover:bg-bg-card border border-divider rounded-full p-3 text-primary transition-all active:scale-95 flex items-center justify-center shrink-0 cursor-pointer"
                 >
                   <FaDownload className="text-xs" />

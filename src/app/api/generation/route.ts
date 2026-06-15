@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AIService } from "@/lib/services/ai";
 
-export async function POST(req) {
+export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
@@ -102,7 +102,7 @@ export async function POST(req) {
     });
 
     return NextResponse.json(result);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Generation handler crash:", error);
     return NextResponse.json({ error: error.message || "Failed to process generation" }, { status: 500 });
   }

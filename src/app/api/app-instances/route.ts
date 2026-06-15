@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(req) {
+export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
@@ -29,13 +29,13 @@ export async function GET(req) {
     });
 
     return NextResponse.json(instances);
-  } catch (error) {
+  } catch (error: any) {
     console.error("AppInstances GET error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-export async function POST(req) {
+export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
@@ -58,13 +58,13 @@ export async function POST(req) {
     });
 
     return NextResponse.json(instance);
-  } catch (error) {
+  } catch (error: any) {
     console.error("AppInstances POST error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-export async function DELETE(req) {
+export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
@@ -86,7 +86,7 @@ export async function DELETE(req) {
 
     await prisma.appInstance.delete({ where: { id } });
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error("AppInstances DELETE error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

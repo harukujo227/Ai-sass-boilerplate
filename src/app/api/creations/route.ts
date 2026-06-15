@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AIService } from "@/lib/services/ai";
 
-export async function GET(req) {
+export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
@@ -16,7 +16,7 @@ export async function GET(req) {
     const userId = session.user.id;
 
     // Filter by appId if provided
-    const queryConditions = { userId };
+    const queryConditions: { userId: string; appId?: string } = { userId };
     if (appId) {
       queryConditions.appId = appId;
     }
@@ -41,7 +41,7 @@ export async function GET(req) {
     );
 
     return NextResponse.json(syncedCreations);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Creations GET handler error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

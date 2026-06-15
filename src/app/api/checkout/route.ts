@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { BillingService } from "@/lib/services/billing";
 
-export async function POST(req) {
+export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
@@ -17,7 +17,7 @@ export async function POST(req) {
 
     const checkoutUrl = await BillingService.createCheckoutSession(session.user.id, planId);
     return NextResponse.json({ url: checkoutUrl });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Checkout route error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

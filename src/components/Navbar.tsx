@@ -11,6 +11,7 @@ import config from "@/lib/config";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
+  const user = session?.user;
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -41,7 +42,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full glass-panel border-b border-divider/50 shadow-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        
+
         {/* Logo and Brand Title (Visible at all times) */}
         <Link href="/" className="flex items-center gap-2 transition-transform hover:scale-[1.02] active:scale-95">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-white font-extrabold text-lg shadow-md shadow-primary/30">
@@ -75,7 +76,7 @@ export default function Navbar() {
 
         {/* Desktop Actions Section */}
         <div className="hidden md:flex items-center gap-4">
-          
+
           {/* Vercel Deploy Button */}
           <a
             href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FSamurAIGPT%2Fcommon-saas-template"
@@ -93,7 +94,7 @@ export default function Navbar() {
               <div className="flex items-center h-9 border border-divider rounded-l bg-bg-page/30 overflow-hidden pr-2">
                 <span className="font-bold text-[13px] px-3 flex items-center text-primary-text gap-1">
                   <FiDollarSign className="text-emerald-500 text-xs" />
-                  {session.user.credits !== undefined ? session.user.credits : 0}
+                  {user?.credits ?? 0}
                 </span>
                 <Link
                   href="/pricing"
@@ -110,9 +111,9 @@ export default function Navbar() {
                   onBlur={() => setTimeout(() => setIsProfileOpen(false), 200)}
                   className="h-9 w-9 flex items-center justify-center border-y border-r border-divider rounded-r bg-bg-page/30 hover:bg-bg-page transition-colors cursor-pointer"
                 >
-                  {session.user.image ? (
+                  {user?.image ? (
                     <img
-                      src={session.user.image}
+                      src={user.image}
                       alt="Profile"
                       className="h-6 w-6 rounded-full object-cover"
                     />
@@ -125,7 +126,7 @@ export default function Navbar() {
                 {isProfileOpen && (
                   <div className="absolute right-0 top-11 w-48 rounded border border-divider bg-bg-card p-1 shadow-lg z-[100] animate-scale-up">
                     <div className="px-3 py-2 text-xs text-secondary-text border-b border-divider/50 mb-1 truncate">
-                      {session.user.email}
+                      {user?.email}
                     </div>
                     <button
                       onClick={() => signOut({ callbackUrl: "/login" })}
@@ -153,10 +154,10 @@ export default function Navbar() {
           {status === "authenticated" && (
             <div className="flex items-center h-8 border border-divider rounded bg-bg-page/30 px-2.5 text-xs font-bold text-primary-text gap-0.5">
               <FiDollarSign className="text-emerald-500 text-[10px]" />
-              {session.user.credits !== undefined ? session.user.credits : 0}
+              {user?.credits ?? 0}
             </div>
           )}
-          
+
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="hover:bg-bg-card p-2 rounded cursor-pointer transition-colors text-primary-text border border-divider/50"

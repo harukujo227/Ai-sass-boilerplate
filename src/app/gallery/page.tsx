@@ -11,8 +11,8 @@ import toast, { Toaster } from "react-hot-toast";
 
 export default function Gallery() {
   const { data: session, status } = useSession();
-  const [creations, setCreations] = useState([]);
-  const [selectedCreation, setSelectedCreation] = useState(null);
+  const [creations, setCreations] = useState<any[]>([]);
+  const [selectedCreation, setSelectedCreation] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function Gallery() {
         .get("/api/creations")
         .then(({ data }) => {
           // Filter to only completed generations
-          setCreations(data.filter(c => c.status === "completed") || []);
+          setCreations(data.filter((c: any) => c.status === "completed") || []);
         })
         .catch(err => console.error(err))
         .finally(() => setLoading(false));
@@ -30,7 +30,7 @@ export default function Gallery() {
     }
   }, [status]);
 
-  const handleDownload = (url, name) => {
+  const handleDownload = (url: string, name?: string) => {
     const downloadUrl = `/api/download?url=${encodeURIComponent(url)}`;
     const a = document.createElement("a");
     a.href = downloadUrl;
@@ -40,7 +40,7 @@ export default function Gallery() {
     document.body.removeChild(a);
   };
 
-  const handleDownloadTxt = (text, name) => {
+  const handleDownloadTxt = (text: string, name?: string) => {
     const element = document.createElement("a");
     const file = new Blob([text], { type: "text/plain" });
     element.href = URL.createObjectURL(file);
@@ -50,7 +50,7 @@ export default function Gallery() {
     document.body.removeChild(element);
   };
 
-  const handleCopyToClipboard = (text) => {
+  const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard!");
   };

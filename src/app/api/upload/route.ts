@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import config from "@/lib/config";
 
-export async function POST(req) {
+export async function POST(req: Request) {
   try {
     const formData = await req.formData();
-    const file = formData.get("file");
+    const file = formData.get("file") as File | null;
     const apiKey = config.ai.apiKey;
 
     if (!file) {
@@ -37,7 +37,7 @@ export async function POST(req) {
 
     const result = await uploadRes.json();
     return NextResponse.json({ url: result.url || result.file_url });
-  } catch (error) {
+  } catch (error: any) {
     console.error("File upload error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

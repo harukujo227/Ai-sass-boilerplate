@@ -16,7 +16,7 @@ export const metadata = {
   description: `${appName} is a platform to launch, brand, and ship credit-based AI apps — image, video, chat, and audio — in minutes.`,
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} h-full`}>
       <body className={`${inter.className} h-full antialiased bg-bg-page text-primary-text`}>

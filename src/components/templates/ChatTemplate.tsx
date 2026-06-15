@@ -7,7 +7,29 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import config from "@/lib/config";
 
-export default function ChatTemplate({ appInstance, userCredits, activeCreation, onCreationCompleted }) {
+type AppInstanceLike = {
+  id: string;
+  name: string;
+  templateId?: string;
+  config?: string | null;
+};
+
+type CreationLike = {
+  id: string;
+  prompt?: string | null;
+  resultImage?: string | null;
+  status: string;
+  error?: string | null;
+};
+
+type ChatTemplateProps = {
+  appInstance: AppInstanceLike;
+  userCredits?: number;
+  activeCreation?: CreationLike | null;
+  onCreationCompleted: () => void;
+};
+
+export default function ChatTemplate({ appInstance, userCredits, activeCreation, onCreationCompleted }: ChatTemplateProps) {
   const parsedConfig = appInstance.config ? JSON.parse(appInstance.config) : {};
   const [messages, setMessages] = useState([
     { role: "assistant", content: `Hello! I am your custom assistant configured for ${appInstance.name}. How can I assist you today?` }
@@ -15,7 +37,7 @@ export default function ChatTemplate({ appInstance, userCredits, activeCreation,
   const [input, setInput] = useState("");
   const [generating, setGenerating] = useState(false);
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || generating) return;
 
@@ -45,7 +67,7 @@ export default function ChatTemplate({ appInstance, userCredits, activeCreation,
         setMessages((prev) => [...prev, { role: "assistant", content: data.resultImage || "Done." }]);
       }
       onCreationCompleted();
-    } catch (err) {
+    } catch (err: any) {
       toast.error(err.response?.data?.error || "Chat failed.", { id: toastId });
       setMessages((prev) => [...prev, { role: "assistant", content: "Error: Connection problem occurred." }]);
     } finally {

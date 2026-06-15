@@ -17,9 +17,9 @@ const PLANS = [
 
 export default function Pricing() {
   const { data: session, status } = useSession();
-  const [loadingPlan, setLoadingPlan] = useState(null);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
-  const handleCheckout = async (planId) => {
+  const handleCheckout = async (planId: string) => {
     if (status !== "authenticated") {
       toast.error("You must sign in with Google to purchase credit packages.");
       return;
@@ -33,7 +33,7 @@ export default function Pricing() {
       } else {
         throw new Error("No redirection URL returned");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       toast.error(err.response?.data?.error || "Failed to trigger Stripe checkout session.");
     } finally {

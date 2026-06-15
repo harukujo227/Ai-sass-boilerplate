@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { BillingService } from "@/lib/services/billing";
 
-export async function POST(req) {
+export async function POST(req: Request) {
   try {
     const body = await req.text();
     const headersList = await headers();
@@ -14,7 +14,7 @@ export async function POST(req) {
 
     const result = await BillingService.handleWebhook(body, signature);
     return NextResponse.json(result);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Stripe webhook processing error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

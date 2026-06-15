@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { UserService } from "@/lib/services/user";
 
-export async function POST(req) {
+export async function POST(req: Request) {
   try {
     const data = await req.json();
     const requestId = data.id || data.request_id;
@@ -55,7 +55,7 @@ export async function POST(req) {
 
       return NextResponse.json({ success: true, status: "completed" });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("MUAPI webhook processing error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

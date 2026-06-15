@@ -6,7 +6,7 @@ import fs from "fs";
 import path from "path";
 
 // Helper function to recursively copy files
-function copyFolderSync(from, to) {
+function copyFolderSync(from: string, to: string) {
   if (!fs.existsSync(to)) {
     fs.mkdirSync(to, { recursive: true });
   }
@@ -40,7 +40,7 @@ function copyFolderSync(from, to) {
 }
 
 // Helper to recursively delete folders
-function deleteFolderRecursive(folderPath) {
+function deleteFolderRecursive(folderPath: string) {
   if (fs.existsSync(folderPath)) {
     fs.readdirSync(folderPath).forEach((file) => {
       const curPath = path.join(folderPath, file);
@@ -61,7 +61,7 @@ const templateFilesMap = {
   "audio-transcribe": "AudioTemplate.js"
 };
 
-function getCleanedRegistryContent(templateId) {
+function getCleanedRegistryContent(templateId: string) {
   const templatesInfo = {
     "ai-image": {
       import: `import ImageTemplate from "@/components/templates/ImageTemplate";`,
@@ -141,15 +141,15 @@ function getCleanedRegistryContent(templateId) {
     }
   };
 
-  const active = templatesInfo[templateId];
+  const active = templatesInfo[templateId as keyof typeof templatesInfo];
   if (!active) return "";
 
   return active.import + "\n\nexport const templateRegistry = {\n" + active.entry + "\n};\n\nexport const getTemplate = (id) => templateRegistry[id] || null;\nexport const getAllTemplates = () => Object.values(templateRegistry);\n";
 }
 
 // Helper to recursively list all files, ignoring node_modules, .next, .git, and app-specific dynamic routes
-function getFilesRecursive(dir, baseDir = dir) {
-  let files = [];
+function getFilesRecursive(dir: string, baseDir = dir) {
+  let files: any[] = [];
   if (!fs.existsSync(dir)) return files;
 
   fs.readdirSync(dir).forEach((element) => {
@@ -184,7 +184,7 @@ function getFilesRecursive(dir, baseDir = dir) {
   return files;
 }
 
-export async function POST(req) {
+export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
@@ -227,7 +227,7 @@ export async function POST(req) {
 
     // Sanitize userParams keys to ensure valid Prisma/JS identifiers
     if (parsedConfig.userParams && Array.isArray(parsedConfig.userParams)) {
-      parsedConfig.userParams = parsedConfig.userParams.map((p) => {
+      parsedConfig.userParams = parsedConfig.userParams.map((p: any) => {
         const sanitizedKey = p.key
           .replace(/[^a-zA-Z0-9_]/g, "_")
           .replace(/^[0-9]/, "_$&");
@@ -373,8 +373,8 @@ export default function StandaloneWorkspace() {
     const userParams = parsedConfig.userParams || [];
 
     const newPrismaFields = userParams
-      .filter((p) => !baseCreationFields.includes(p.key))
-      .map((p) => {
+      .filter((p: any) => !baseCreationFields.includes(p.key))
+      .map((p: any) => {
         let pType = "String?";
         if (p.type === "boolean") pType = "Boolean?";
         else if (p.type === "number" || p.type === "slider") pType = "Int?";
@@ -383,7 +383,7 @@ export default function StandaloneWorkspace() {
       .join("\n");
 
     const customFieldsCode = userParams
-      .map((p) => {
+      .map((p: any) => {
         let valStr = `customParams.${p.key}`;
         if (p.type === "number" || p.type === "slider") {
           valStr = `customParams.${p.key} !== undefined ? Number(customParams.${p.key}) : ${p.defaultValue !== "" && p.defaultValue !== undefined ? Number(p.defaultValue) : 0}`;
@@ -503,7 +503,7 @@ export default function StandaloneWorkspace() {
 
       // 4. Scan source files and build transformed content map
       const allFilesRaw = getFilesRecursive(sourceDir);
-      const activeTemplateFile = templateFilesMap[appInstance.templateId];
+      const activeTemplateFile = templateFilesMap[appInstance.templateId as keyof typeof templateFilesMap];
       const allTemplateFiles = ["ImageTemplate.js", "VideoTemplate.js", "ChatTemplate.js", "AudioTemplate.js"];
 
       const sourceFiles = allFilesRaw.filter(file => {
@@ -517,9 +517,9 @@ export default function StandaloneWorkspace() {
       });
 
       // Helper: get the (possibly transformed) content for each file
-      function getFileContent(file) {
+      function getFileContent(file: any): { text?: string; binary?: Buffer } {
         if (file.relPath === "src/lib/registry.js") {
-          return { text: getCleanedRegistryContent(appInstance.templateId) };
+          return { text: getCleanedRegistryContent(appInstance!.templateId) };
         }
         if (file.relPath === "src/lib/standaloneConfig.js") {
           return { text: configContent };
@@ -528,12 +528,12 @@ export default function StandaloneWorkspace() {
           let c = fs.readFileSync(file.fullPath, "utf8");
           c = c.replace(
             /appName:\s*["'][^"']*["']/g,
-            `appName: "${appInstance.name}"`
+            `appName: "${appInstance!.name}"`
           );
           if (!c.includes("appName:")) {
             c = c.replace(
               /const config = \{/,
-              `const config = {\n  appName: "${appInstance.name}",`
+              `const config = {\n  appName: "${appInstance!.name}",`
             );
           }
           return { text: c };
@@ -640,7 +640,7 @@ export default function StandaloneWorkspace() {
               const blobBody = content.text
                 ? { content: content.text, encoding: "utf-8" }
                 : {
-                    content: content.binary.toString("base64"),
+                    content: content.binary!.toString("base64"),
                     encoding: "base64",
                   };
 
@@ -866,7 +866,7 @@ export default function StandaloneWorkspace() {
       copyFolderSync(sourceDir, targetDir);
 
       // Delete unused template files inside local export directory
-      const activeTemplateFile = templateFilesMap[appInstance.templateId];
+      const activeTemplateFile = templateFilesMap[appInstance.templateId as keyof typeof templateFilesMap];
       const allTemplateFiles = ["ImageTemplate.js", "VideoTemplate.js", "ChatTemplate.js", "AudioTemplate.js"];
 
       allTemplateFiles.forEach((file) => {
@@ -1030,7 +1030,7 @@ export default function StandaloneWorkspace() {
       );
       return NextResponse.json({ success: true, slug });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Exporter api crash:", error);
     return NextResponse.json(
       { error: error.message || "Exporter failed" },

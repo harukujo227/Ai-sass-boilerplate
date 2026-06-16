@@ -8,13 +8,13 @@ import { FaImage } from "react-icons/fa";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
-export default function AppInstanceWorkspace({ params }) {
+export default function AppInstanceWorkspace({ params }: { params: Promise<{ appId: string }> }) {
   const resolvedParams = use(params);
   const appId = resolvedParams.appId;
 
-  const [appInstance, setAppInstance] = useState(null);
-  const [activeCreation, setActiveCreation] = useState(null);
-  const [creations, setCreations] = useState([]);
+  const [appInstance, setAppInstance] = useState<any>(null);
+  const [activeCreation, setActiveCreation] = useState<any>(null);
+  const [creations, setCreations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchAppData = async () => {
@@ -27,7 +27,7 @@ export default function AppInstanceWorkspace({ params }) {
 
       if (userCreations && userCreations.length > 0) {
         // Find latest active creation or default to first
-        const processing = userCreations.find(c => c.status === "processing");
+        const processing = userCreations.find((c: any) => c.status === "processing");
         setActiveCreation(processing || userCreations[0]);
       }
     } catch (err) {

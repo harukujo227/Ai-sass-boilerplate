@@ -16,14 +16,14 @@ const PLANS = [
   { id: "business", name: "Business Pack", price: "$50", credits: 2000, description: "Maximum value pack for agency workflows and large volume generations." }
 ];
 
-export default function AppInstancePricing({ params }) {
+export default function AppInstancePricing({ params }: { params: Promise<{ appId: string }> }) {
   const resolvedParams = use(params);
   const appId = resolvedParams.appId;
 
   const { data: session, status } = useSession();
-  const [appInstance, setAppInstance] = useState(null);
+  const [appInstance, setAppInstance] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [loadingPlan, setLoadingPlan] = useState(null);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAppDetails = async () => {
@@ -52,7 +52,7 @@ export default function AppInstancePricing({ params }) {
     }
   }, [appInstance]);
 
-  const handleCheckout = async (planId) => {
+  const handleCheckout = async (planId: string) => {
     if (status !== "authenticated") {
       toast.error("You must sign in with Google to purchase credit packages.");
       return;
@@ -66,7 +66,7 @@ export default function AppInstancePricing({ params }) {
       } else {
         throw new Error("No redirection URL returned");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       toast.error(err.response?.data?.error || "Failed to trigger Stripe checkout session.");
     } finally {

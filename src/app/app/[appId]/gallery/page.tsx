@@ -9,13 +9,13 @@ import { IoClose } from "react-icons/io5";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
-export default function AppInstanceGallery({ params }) {
+export default function AppInstanceGallery({ params }: { params: Promise<{ appId: string }> }) {
   const resolvedParams = use(params);
   const appId = resolvedParams.appId;
 
-  const [appInstance, setAppInstance] = useState(null);
-  const [creations, setCreations] = useState([]);
-  const [selectedCreation, setSelectedCreation] = useState(null);
+  const [appInstance, setAppInstance] = useState<any>(null);
+  const [creations, setCreations] = useState<any[]>([]);
+  const [selectedCreation, setSelectedCreation] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function AppInstanceGallery({ params }) {
         setAppInstance(app);
 
         const { data: userCreations } = await axios.get(`/api/creations?appId=${appId}`);
-        setCreations(userCreations.filter(c => c.status === "completed") || []);
+        setCreations(userCreations.filter((c: any) => c.status === "completed") || []);
       } catch (err) {
         console.error("Error loading gallery data:", err);
         toast.error("Failed to load gallery details.");
@@ -48,7 +48,7 @@ export default function AppInstanceGallery({ params }) {
     }
   }, [appInstance]);
 
-  const handleDownload = (url, name) => {
+  const handleDownload = (url: string, name?: string) => {
     const downloadUrl = `/api/download?url=${encodeURIComponent(url)}`;
     const a = document.createElement("a");
     a.href = downloadUrl;
@@ -58,7 +58,7 @@ export default function AppInstanceGallery({ params }) {
     document.body.removeChild(a);
   };
 
-  const handleDownloadTxt = (text, name) => {
+  const handleDownloadTxt = (text: string, name?: string) => {
     const element = document.createElement("a");
     const file = new Blob([text], { type: "text/plain" });
     element.href = URL.createObjectURL(file);
@@ -68,7 +68,7 @@ export default function AppInstanceGallery({ params }) {
     document.body.removeChild(element);
   };
 
-  const handleCopyToClipboard = (text) => {
+  const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard!");
   };

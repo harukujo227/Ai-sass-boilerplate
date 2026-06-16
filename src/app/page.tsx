@@ -10,7 +10,13 @@ import { getAllTemplates } from "@/lib/registry";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
-function CustomSelect({ value, onChange, options, placeholder = "Select option", className = "" }) {
+function CustomSelect({ value, onChange, options, placeholder = "Select option", className = "" }: {
+  value: string;
+  onChange: (val: string) => void;
+  options: { label: string; value: string }[];
+  placeholder?: string;
+  className?: string;
+}) {
   const [open, setOpen] = useState(false);
   const selectedOption = options.find(opt => opt.value === value) || { label: placeholder, value };
   
@@ -53,7 +59,7 @@ function CustomSelect({ value, onChange, options, placeholder = "Select option",
 
 export default function PlatformDashboard() {
   const { data: session, status } = useSession();
-  const [appInstances, setAppInstances] = useState([]);
+  const [appInstances, setAppInstances] = useState<any[]>([]);
   const [creationsCount, setCreationsCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -72,7 +78,7 @@ export default function PlatformDashboard() {
   const [selectedTheme, setSelectedTheme] = useState("slate-indigo");
 
   // Parameter Designer State
-  const [userParams, setUserParams] = useState([]);
+  const [userParams, setUserParams] = useState<any[]>([]);
   const [jsonInput, setJsonInput] = useState("");
   const [showJsonImport, setShowJsonImport] = useState(false);
   const [showParamsSection, setShowParamsSection] = useState(false);
@@ -82,16 +88,16 @@ export default function PlatformDashboard() {
       const parsed = JSON.parse(jsonInput);
       const detectedParams = Object.entries(parsed).map(([key, val]) => {
         let type = "text";
-        let options = [];
+        let options: any[] = [];
         let defaultValue = val;
         let maxInputs = 1;
 
         const kLower = key.toLowerCase();
         const isListKey = kLower.includes("list") || Array.isArray(val);
 
-        const isImgUrl = (s) => typeof s === "string" && s.startsWith("http") && /\.(jpg|jpeg|png|webp|gif)/i.test(s);
-        const isVidUrl = (s) => typeof s === "string" && s.startsWith("http") && /\.(mp4|webm|mov|mkv)/i.test(s);
-        const isAudUrl = (s) => typeof s === "string" && s.startsWith("http") && /\.(mp3|wav|m4a|ogg)/i.test(s);
+        const isImgUrl = (s: any) => typeof s === "string" && s.startsWith("http") && /\.(jpg|jpeg|png|webp|gif)/i.test(s);
+        const isVidUrl = (s: any) => typeof s === "string" && s.startsWith("http") && /\.(mp4|webm|mov|mkv)/i.test(s);
+        const isAudUrl = (s: any) => typeof s === "string" && s.startsWith("http") && /\.(mp3|wav|m4a|ogg)/i.test(s);
 
         const valArray = Array.isArray(val) ? val : [val];
         const hasImgVal = valArray.some(isImgUrl);
@@ -176,7 +182,7 @@ export default function PlatformDashboard() {
     }
   }, [status]);
 
-  const handleLaunchApp = async (e) => {
+  const handleLaunchApp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAppName.trim()) {
       toast.error("Please enter a name for your application.");
@@ -228,7 +234,7 @@ export default function PlatformDashboard() {
     }
   };
 
-  const handleDeleteApp = async (id) => {
+  const handleDeleteApp = async (id: string) => {
     if (!confirm("Are you sure you want to delete this template application instance? All data will be deleted.")) return;
 
     try {
@@ -240,7 +246,7 @@ export default function PlatformDashboard() {
     }
   };
 
-  const handleExportApp = async (id, name) => {
+  const handleExportApp = async (id: string, name: string) => {
     const toastId = toast.loading(`Exporting ${name}...`);
     try {
       const { data } = await axios.post("/api/app-instances/export", { appId: id });
@@ -260,7 +266,7 @@ export default function PlatformDashboard() {
       } else {
         toast.success(`Exported locally to: apps/${data.slug}`, { id: toastId, duration: 6000 });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       toast.error(err.response?.data?.error || "Export failed.", { id: toastId });
     }
@@ -315,7 +321,7 @@ export default function PlatformDashboard() {
               {[
                 { label: "Deployed Apps", value: appInstances.length, desc: "Custom active workspaces" },
                 { label: "Total Generations", value: creationsCount, desc: "Completed AI predictions" },
-                { label: "Active Balance", value: `$ ${session.user.credits || "0"}`, desc: "Available platform credits" }
+                { label: "Active Balance", value: `$ ${session?.user?.credits || "0"}`, desc: "Available platform credits" }
               ].map((m, idx) => (
                 <div key={idx} className="bg-bg-card border border-divider/50 rounded-lg p-5 flex flex-col justify-between h-28 shadow-sm">
                   <span className="text-[10px] font-black text-secondary-text uppercase tracking-widest">{m.label}</span>
@@ -346,7 +352,7 @@ export default function PlatformDashboard() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {appInstances.map((app) => {
-                    const temp = templates.find(t => t.id === app.templateId) || {};
+                    const temp: any = templates.find(t => t.id === app.templateId) || {};
                     return (
                       <div
                         key={app.id}
@@ -420,7 +426,7 @@ export default function PlatformDashboard() {
                       <button
                         onClick={() => {
                           setSelectedTemplateId(temp.id);
-                          setCustomPrompt(temp.defaultConfig.systemPrompt);
+                          setCustomPrompt(temp.defaultConfig.systemPrompt as string);
                           setShowModal(true);
                         }}
                         className="text-xs font-extrabold text-primary-text flex items-center gap-1.5 hover:text-primary transition-colors hover:underline text-left"
@@ -469,7 +475,7 @@ export default function PlatformDashboard() {
                       onChange={(val) => {
                         setSelectedTemplateId(val);
                         const matching = templates.find(t => t.id === val);
-                        if (matching) setCustomPrompt(matching.defaultConfig.systemPrompt);
+                        if (matching) setCustomPrompt(matching.defaultConfig.systemPrompt as string);
                       }}
                       options={templates.map(t => ({ label: t.name, value: t.id }))}
                     />

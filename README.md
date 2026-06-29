@@ -364,7 +364,7 @@ Released under the **MIT License**. See [`LICENSE`](LICENSE) for details.
 
 **Satoshi**
 
-- GitHub: [@aozoragh](https://github.com/aozoragh)
+- GitHub: [@harkujo227](https://github.com/harukujo227)
 
 <p align="center">
   <sub>Built with Next.js, Prisma, Stripe & MuAPI — ⭐ star the repo if it helped you ship.</sub>
